@@ -41,10 +41,10 @@ int CHAR_CHAR(char *block, char *data, int num, int begin)
 /*
 判断字符串是否相等
 */
-int TEST_CHARE(char* const cmp1, char* const cmp2, int num)
+int TEST_CHARE(char *const cmp1, char *const cmp2, int num)
 {
-    for(int i=0; i<num; i++)
-        if(cmp1[i] != cmp2[i])
+    for (int i = 0; i < num; i++)
+        if (cmp1[i] != cmp2[i])
             return 1;
     return 0;
 }
@@ -86,9 +86,7 @@ int BLOCK_WRITE(unsigned long long int number, unsigned char *block, FILE *fp)
     return count != SIZE_BLOCK;
 }
 
-/*
-初始化MBR信息
-*/
+
 int INFO_MBR(MBR *temp, char *block)
 {
     CHAR_CHAR(block, (*temp).BS_OEMName, 8, 3);                      //厂商名
@@ -157,15 +155,23 @@ char *GET_ROOTDIR(FILE *fp)
 {
     unsigned int temp = SIZE_BLOCK * BLOCKNUM_DIR;
     char *dir = (char *)malloc(sizeof(char) * temp);
+    fseek(fp, SIZE_BLOCK * BEGIN_DIR, SEEK_SET);
     for (unsigned int i = 0; i < temp; i += SIZE_BLOCK)
         fread(&(dir[i]), sizeof(char), SIZE_BLOCK, fp);
     return dir;
 }
 
 /*
-获得一个目录项
+天数转年月日
 */
-int *GET_ONEDIR(char *DIR, )
+int get_time1(mytime* data, unsigned short date, unsigned short time)
 {
-    
+    (*data).year = (date & 0b1111111000000000)>>9;
+    (*data).year += 1980;
+    (*data).month = (date & 0b0000000111100000)>>5;
+    (*data).day = date & 0b0000000000011111;
+    (*data).hour = (time & 0b1111100000000000)>>11;
+    (*data).min = (time & 0b0000011111100000)>>5;
+    (*data).sec = time & 0b0000000000001111;
+    return 0;
 }

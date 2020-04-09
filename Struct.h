@@ -37,11 +37,22 @@ typedef struct
     char DIR_NAME[11];          //文件名8字节，扩展名3字节，偏移0
     char DIR_Attr;              //文件属性，偏移11
     char Reserve[10];           //保留位，偏移12
-    unsigned short DIR_WrtTime; //最后一次写入时间,偏移22
-    unsigned short DIR_WrtData; //最后一次写入日期，偏移24
+    unsigned short DIR_WrtTime; //最后一次写入时间,偏移22，秒数
+    unsigned short DIR_WrtData; //最后一次写入日期，偏移24，天数
     unsigned short DIR_FstClus; //文件开始的簇号，偏移26
     unsigned int DIR_FileSize;  //文件大小，偏移28
 } DIR;
+
+//时间结构体
+typedef struct
+{
+    unsigned short year;
+    unsigned short month;
+    unsigned short day;
+    unsigned short hour;
+    unsigned short min;
+    unsigned short sec;
+} mytime;
 
 
 #endif
