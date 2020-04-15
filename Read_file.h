@@ -1,3 +1,5 @@
+#ifndef READ_FILE_H
+#define READ_FILE_H
 #include <stdio.h>
 #include <stdlib.h>
 #include "define.h"
@@ -175,3 +177,5 @@ int get_time1(mytime* data, unsigned short date, unsigned short time)
     (*data).sec = time & 0b0000000000001111;
     return 0;
 }
+
+#endif
