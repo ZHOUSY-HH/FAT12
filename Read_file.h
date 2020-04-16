@@ -189,14 +189,14 @@ FILE_BLOCK *GET_FILE(FILE *fp, const unsigned char *const fat, unsigned short fi
     FILE_BLOCK *temp = NULL;
     FILE_BLOCK *head = NULL;
     temp = head = (FILE_BLOCK *)malloc(sizeof(FILE_BLOCK));
-    head->data = BLOCK_READ(BEGIN_DATA + first - 2, fp);
+    head->data = (char *)BLOCK_READ(BEGIN_DATA + first - 2, fp);
     head->clus = first;
     head->next = NULL;
     while (now != end)
     {
         temp->next = (FILE_BLOCK *)malloc(sizeof(FILE_BLOCK));
         temp = temp->next;
-        head->data = BLOCK_READ(BEGIN_DATA + now, fp);
+        head->data = (char *)BLOCK_READ(BEGIN_DATA + now, fp);
         head->clus = now;
         head->next = NULL;
         now = GET_FATCLUS(fat, now);

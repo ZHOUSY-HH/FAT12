@@ -1,6 +1,7 @@
 #ifndef STRUCT_H
 #define STRUCT_H
 #include "define.h"
+#include <stdio.h>
 /*
 注释
 */
@@ -69,9 +70,26 @@ typedef struct PATH
     struct PATH* next;
 }PATH;
 
+/*
+理解成进入下一级目录
+*/
 PATH* path_add(char* temp, PATH* head)
 {
-    
+    PATH* now = (PATH*)malloc(sizeof(PATH));
+    now -> next = head;
+    for(int i=0; i<LEATH_NAME; i++)
+        now -> name[i] = temp[i];
+    return now;
+}
+
+/*
+理解成返回上一级目录
+*/
+PATH* path_sub(PATH* head)
+{
+    PATH* temp = head -> next;
+    free(head);
+    return temp;
 }
 
 
