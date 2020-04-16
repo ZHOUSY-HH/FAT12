@@ -62,6 +62,19 @@ typedef struct FILE_BLOCK
     struct FILE_BLOCK* next;
 }FILE_BLOCK;
 
+//路径结构体
+typedef struct PATH
+{
+    char name[8];
+    struct PATH* next;
+}PATH;
+
+PATH* path_add(char* temp, PATH* head)
+{
+    
+}
+
+
 
 
 #endif

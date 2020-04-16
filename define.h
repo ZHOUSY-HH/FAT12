@@ -18,5 +18,7 @@
 #define ATTR_END 0X00
 #define ATTR_NONE 0X01
 
+#define LEATH_NAME 8
+
 
 #endif
