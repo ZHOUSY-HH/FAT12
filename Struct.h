@@ -54,5 +54,14 @@ typedef struct
     unsigned short sec;
 } mytime;
 
+//文件块结构体
+typedef struct FILE_BLOCK
+{
+    char* data;
+    unsigned short clus;
+    struct FILE_BLOCK* next;
+}FILE_BLOCK;
+
+
 
 #endif

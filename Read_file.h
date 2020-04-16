@@ -5,6 +5,8 @@
 #include "define.h"
 #include "Struct.h"
 
+//可以考虑判断有没有.来判断是否为根目录
+
 /*
 两个char类型转化为1个short
 */
@@ -88,7 +90,6 @@ int BLOCK_WRITE(unsigned long long int number, unsigned char *block, FILE *fp)
     return count != SIZE_BLOCK;
 }
 
-
 int INFO_MBR(MBR *temp, char *block)
 {
     CHAR_CHAR(block, (*temp).BS_OEMName, 8, 3);                      //厂商名
@@ -131,7 +132,7 @@ char *GET_FAT(FILE *fp)
 /*
 FAT簇号获得(0、1块不能改变,FF0表示坏块,FFF表示文件结束)
 */
-short GET_FATCLUS(unsigned char *const block, unsigned short num)
+short GET_FATCLUS(const unsigned char *const block, unsigned short num)
 {
     unsigned short temp = num % 2;
     num = num / 2 * 3;
@@ -166,16 +167,41 @@ char *GET_ROOTDIR(FILE *fp)
 /*
 天数转年月日
 */
-int get_time1(mytime* data, unsigned short date, unsigned short time)
+int get_time1(mytime *data, unsigned short date, unsigned short time)
 {
-    (*data).year = (date & 0b1111111000000000)>>9;
+    (*data).year = (date & 0b1111111000000000) >> 9;
     (*data).year += 1980;
-    (*data).month = (date & 0b0000000111100000)>>5;
+    (*data).month = (date & 0b0000000111100000) >> 5;
     (*data).day = date & 0b0000000000011111;
-    (*data).hour = (time & 0b1111100000000000)>>11;
-    (*data).min = (time & 0b0000011111100000)>>5;
+    (*data).hour = (time & 0b1111100000000000) >> 11;
+    (*data).min = (time & 0b0000011111100000) >> 5;
     (*data).sec = time & 0b0000000000001111;
     return 0;
+}
+
+/*
+根据首簇号打开用户文件
+*/
+FILE_BLOCK *GET_FILE(FILE *fp, const unsigned char *const fat, unsigned short first)
+{
+    unsigned short end = GET_FATCLUS(fat, 1);
+    unsigned short now = GET_FATCLUS(fat, first);
+    FILE_BLOCK *temp = NULL;
+    FILE_BLOCK *head = NULL;
+    temp = head = (FILE_BLOCK *)malloc(sizeof(FILE_BLOCK));
+    head->data = BLOCK_READ(BEGIN_DATA + first - 2, fp);
+    head->clus = first;
+    head->next = NULL;
+    while (now != end)
+    {
+        temp->next = (FILE_BLOCK *)malloc(sizeof(FILE_BLOCK));
+        temp = temp->next;
+        head->data = BLOCK_READ(BEGIN_DATA + now, fp);
+        head->clus = now;
+        head->next = NULL;
+        now = GET_FATCLUS(fat, now);
+    }
+    return head;
 }
 
 #endif
