@@ -58,41 +58,65 @@ typedef struct
 //文件块结构体
 typedef struct FILE_BLOCK
 {
-    char* data;
+    char *data;
     unsigned short clus;
-    struct FILE_BLOCK* next;
-}FILE_BLOCK;
+    struct FILE_BLOCK *next;
+} FILE_BLOCK;
+//释放文件块
+FILE_BLOCK *free_fileblock(FILE_BLOCK *head)
+{
+    while (head != NULL)
+    {
+        FILE_BLOCK *temp = head->next;
+        free(head);
+        head = head->next;
+    }
+    return head;
+}
 
 //路径结构体
 typedef struct PATH
 {
     char name[8];
-    struct PATH* next;
-}PATH;
+    struct PATH *next;
+} PATH;
 
 /*
 理解成进入下一级目录
 */
-PATH* path_add(char* temp, PATH* head)
+PATH *path_add(char *temp, PATH *head)
 {
-    PATH* now = (PATH*)malloc(sizeof(PATH));
-    now -> next = head;
-    for(int i=0; i<LEATH_NAME; i++)
-        now -> name[i] = temp[i];
+    PATH *now = (PATH *)malloc(sizeof(PATH));
+    now->next = head;
+    for (int i = 0; i < LEATH_NAME; i++)
+        now->name[i] = temp[i];
     return now;
 }
-
 /*
 理解成返回上一级目录
 */
-PATH* path_sub(PATH* head)
+PATH *path_sub(PATH *head)
 {
-    PATH* temp = head -> next;
+    if(head ==NULL)
+        return head;
+    PATH *temp = head->next;
     free(head);
     return temp;
 }
-
-
-
+/*
+理解成返回根目录
+*/
+PATH* path_return(PATH* head)
+{
+    if(head == NULL)
+        return head;
+    while(head != NULL)
+    {
+        PATH* temp = head;
+        head = head ->next;
+        free(temp);
+    }
+    return head;
+}
 
 #endif

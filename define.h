@@ -3,6 +3,8 @@
 
 #define SIZE_BLOCK 512
 #define SIZE_ONEDIR 32
+#define SIZE_ROOTDIRNUM 224
+#define SIZE_DIRNUM 16
 
 #define BEGIN_DIR 19
 #define BEGIN_FAT1 1
@@ -20,5 +22,8 @@
 
 #define LEATH_NAME 8
 
+#define ORDER_DIR 1
+#define ORDER_ERROR 2
+#define ORDERC_CD 3   
 
 #endif

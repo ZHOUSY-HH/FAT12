@@ -131,4 +131,33 @@ int show_alldir(DIR *dir, int maxsize)
     return count;
 }
 
+/*
+展示路径
+*/
+int show_nowpath(PATH *head)
+{
+    if (head == NULL)
+    {
+        printf("/");
+        return 1;
+    }
+    if (head->next != NULL)
+        show_nowpath(head->next);
+    printf("/");
+    for (int i = 0; i < LEATH_NAME; i++)
+        printf("%c", head->name[i]);
+    return 0;
+}
+
+/*
+展示开头
+*/
+int show_base(PATH *path)
+{
+    printf("zsy ");
+    show_nowpath(path);
+    printf(":");
+    fflush(stdout);
+}
+
 #endif

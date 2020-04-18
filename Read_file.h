@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "define.h"
 #include "Struct.h"
+#include <string.h>
 
 //可以考虑判断有没有.来判断是否为根目录
 
@@ -50,6 +51,21 @@ int TEST_CHARE(char *const cmp1, char *const cmp2, int num)
     for (int i = 0; i < num; i++)
         if (cmp1[i] != cmp2[i])
             return 1;
+    return 0;
+}
+
+/*
+判断字符串是否相等
+*/
+int TEST_STRINGE(char *const cmp1, char* const cmp2, int num)
+{
+    for(int i=0; i<num; i++)
+    {
+        if(cmp1[i]==0||cmp2[i]==0)
+            break;
+        if(cmp1[i]!=cmp2[i])
+            return 1;
+    }
     return 0;
 }
 
@@ -202,6 +218,19 @@ FILE_BLOCK *GET_FILE(FILE *fp, const unsigned char *const fat, unsigned short fi
         now = GET_FATCLUS(fat, now);
     }
     return head;
+}
+
+DIR *find_dir(DIR *file, unsigned short maxsize, char name[11])
+{
+    int i = 0;
+    while (i < maxsize && file[i].DIR_Attr != 0)
+    {
+        int temp = TEST_STRINGE(name, file[i].DIR_NAME, 11);
+        if(temp == 0)
+            return &file[i];
+        i++;
+    }
+    return NULL;
 }
 
 #endif
