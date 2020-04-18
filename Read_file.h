@@ -7,6 +7,7 @@
 #include <string.h>
 
 //可以考虑判断有没有.来判断是否为根目录
+//文件名是否可以重合，目前还不能重合
 
 /*
 两个char类型转化为1个short
@@ -46,7 +47,7 @@ int CHAR_CHAR(char *block, char *data, int num, int begin)
 /*
 判断字符串是否相等
 */
-int TEST_CHARE(char *const cmp1, char *const cmp2, int num)
+int TEST_CHARE(const char *cmp1, const char *cmp2, int num)
 {
     for (int i = 0; i < num; i++)
         if (cmp1[i] != cmp2[i])
@@ -57,14 +58,20 @@ int TEST_CHARE(char *const cmp1, char *const cmp2, int num)
 /*
 判断字符串是否相等
 */
-int TEST_STRINGE(char *const cmp1, char* const cmp2, int num)
+int TEST_STRINGE(const char *const cmp1, const char *const cmp2, int num)
 {
-    for(int i=0; i<num; i++)
+    int k = 0;
+    for (int i = 0; i < num; i++)
     {
-        if(cmp1[i]==0||cmp2[i]==0)
+        if (cmp1[i] == 0 || cmp2[k] == 0)
             break;
-        if(cmp1[i]!=cmp2[i])
+        if (i == 8)
+            i += 1;
+        if (cmp1[i] != cmp2[k])
+        {
             return 1;
+        }
+        k++;
     }
     return 0;
 }
@@ -170,14 +177,19 @@ short GET_FATCLUS(const unsigned char *const block, unsigned short num)
 /*
 缓存根目录盘块
 */
-char *GET_ROOTDIR(FILE *fp)
+FILE_BLOCK *GET_ROOTDIR(FILE *fp)
 {
-    unsigned int temp = SIZE_BLOCK * BLOCKNUM_DIR;
-    char *dir = (char *)malloc(sizeof(char) * temp);
-    fseek(fp, SIZE_BLOCK * BEGIN_DIR, SEEK_SET);
-    for (unsigned int i = 0; i < temp; i += SIZE_BLOCK)
-        fread(&(dir[i]), sizeof(char), SIZE_BLOCK, fp);
-    return dir;
+    FILE_BLOCK *temp = (FILE_BLOCK *)malloc(sizeof(FILE_BLOCK));
+    FILE_BLOCK *temp1 = temp;
+    temp->data = BLOCK_READ(BEGIN_DIR, fp);
+    temp->next = NULL;
+    for (int i = 0; i < BLOCKNUM_DIR - 1; i++)
+    {
+        temp->next = (FILE_BLOCK *)malloc(sizeof(FILE_BLOCK));
+        temp = temp->next;
+        temp->data = BLOCK_READ(BEGIN_DIR + i, fp);
+    }
+    return temp1;
 }
 
 /*
@@ -220,17 +232,125 @@ FILE_BLOCK *GET_FILE(FILE *fp, const unsigned char *const fat, unsigned short fi
     return head;
 }
 
-DIR *find_dir(DIR *file, unsigned short maxsize, char name[11])
+DIR *find_dir(DIR *file, unsigned short maxsize, const char name[12])
 {
     int i = 0;
     while (i < maxsize && file[i].DIR_Attr != 0)
     {
         int temp = TEST_STRINGE(name, file[i].DIR_NAME, 11);
-        if(temp == 0)
+        if (temp == 0)
             return &file[i];
         i++;
     }
     return NULL;
+}
+
+/*
+寻找相对路径
+*/
+FILE_BLOCK *FIND_PATH(FILE *fp, const char *const fat, FILE_BLOCK *rootdir, FILE_BLOCK *now_file, const char name[50], char changep, PATH **path, int attr)
+{
+    char tempname[12];
+    int num = strlen(name);
+    FILE_BLOCK *tempnowfile = now_file;
+    DIR *tempdir;
+    PATH *temppath = (*path);
+
+    //指回根目录
+    if (name[0] == '/' && name[1] == 0)
+    {
+        if (changep) //如果改变路径
+        {
+            while ((*path)->next != NULL)
+                (*path) = path_sub((*path));
+        }
+        return rootdir;
+    }
+
+    //指向上级目录
+    if (name[0] == '.' && name[1] == 0)
+        return now_file;
+    if (name[0] == '.' && name[1] == '.' && name[2] == 0)
+    {
+        tempdir = find_dir((DIR *)now_file->data, SIZE_DIRNUM, name);
+        if (tempdir->DIR_FstClus != 0)
+            tempnowfile = GET_FILE(fp, fat, tempdir->DIR_FstClus);
+        else
+            tempnowfile = GET_ROOTDIR(fp);
+        free_fileblock(now_file);
+        (*path) = path_sub(*path);
+        return tempnowfile;
+    }
+
+    //指向子目录
+    for (int i = 0; i < num; i++)
+    {
+        int k = 0;
+        while (name[i] != '/' && name[i] != 0)
+        {
+            tempname[k] = name[i];
+            i++;
+            k++;
+            if (k >= 12)
+            {
+                printf("name too long.\n");
+                return now_file;
+            }
+        }
+        tempname[k] = 0;
+        FILE_BLOCK *tempnowfile2 = tempnowfile;
+        while (tempnowfile2 != NULL) //先找到相应的目录项
+        {
+            tempdir = find_dir((DIR *)tempnowfile->data, SIZE_DIRNUM, tempname);
+            if (tempdir != NULL)
+                break;
+            tempnowfile2 = tempnowfile2->next;
+        }
+        if (tempdir == NULL) //如果没找到的处理情况
+        {
+            if (changep) //要改变路径的话需要改变
+            {
+                while ((*path) != temppath)
+                    (*path) = path_sub((*path));
+            }
+            if (tempnowfile != now_file)
+                free_fileblock(tempnowfile);
+        }
+        else //找到该文件
+        {
+            if (tempdir->DIR_Attr == 0x10) //找到一个文件夹
+            {
+                if (changep)
+                    *path = path_add(tempname, (*path));
+                if (tempnowfile != now_file)
+                    free_fileblock(tempnowfile);
+                tempnowfile = GET_FILE(fp, fat, tempdir->DIR_FstClus);
+                free_fileblock(now_file);
+                if (name[i] == 0)
+                    return tempnowfile;
+            }
+            else if (name[i + 1] != 0 && tempdir->DIR_Attr != 0x10) //找到一个文件但是未到文件尾
+            {
+                if (changep)
+                {
+                    while ((*path) != temppath)
+                        (*path) = path_sub((*path));
+                }
+                printf("finderror\n");
+                if (tempnowfile != now_file)
+                    free_fileblock(tempnowfile);
+                return now_file;
+            }
+            else //找到真正的文件
+            {
+                if (tempnowfile != now_file)
+                    free_fileblock(tempnowfile);
+                tempnowfile = GET_FILE(fp, fat, tempdir->DIR_FstClus);
+                free(now_file);
+            }
+        }
+    }
+    return tempnowfile;
 }
 
 #endif

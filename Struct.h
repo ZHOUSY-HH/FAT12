@@ -77,7 +77,7 @@ FILE_BLOCK *free_fileblock(FILE_BLOCK *head)
 //路径结构体
 typedef struct PATH
 {
-    char name[8];
+    char name[LEATH_NAME+1];
     struct PATH *next;
 } PATH;
 
@@ -90,6 +90,7 @@ PATH *path_add(char *temp, PATH *head)
     now->next = head;
     for (int i = 0; i < LEATH_NAME; i++)
         now->name[i] = temp[i];
+    now -> name[LEATH_NAME+1] = 0;
     return now;
 }
 /*
@@ -117,6 +118,28 @@ PATH* path_return(PATH* head)
         free(temp);
     }
     return head;
+}
+
+/*
+文件名结构体
+*/
+typedef struct FILE_NAME
+{
+    char name [13];
+    struct FILE_NAME* next;
+}FILE_NAME;
+/*
+释放空间
+*/
+FILE_NAME* FILE_NAME_free(FILE_NAME* file)
+{
+    while(file != NULL)
+    {
+        FILE_NAME* temp = file;
+        file = file -> next;
+        free(temp);
+    }
+    return file;
 }
 
 #endif

@@ -72,11 +72,8 @@ int getorder(char order[10], char par[20], char filename[50])
         {
             while (temp[i] != 0 && temp[i] != ' ')
             {
-                if (temp[i] != '.')
-                {
-                    filename[k] = temp[i];
-                    k++;
-                }
+                filename[k] = temp[i];
+                k++;
                 i++;
                 if (k >= 50)
                     return ORDER_ERROR;
@@ -88,21 +85,21 @@ int getorder(char order[10], char par[20], char filename[50])
         }
         else
         {
-            while(temp[i]!=0&&temp[i]!=' ')
+            while (temp[i] != 0 && temp[i] != ' ')
             {
                 filename[k] = temp[i];
                 k++;
                 i++;
-                if(k>=50)
+                if (k >= 50)
                     return ORDER_ERROR;
             }
             filename[k] = ' ';
             k++;
-            if(k>=50)
+            if (k >= 50)
                 return ORDER_ERROR;
         }
-            if (temp[i] == ' ')
-                i++;
+        if (temp[i] == ' ')
+            i++;
     }
     if (j > 0)
         par[j - 1] = 0;
@@ -111,18 +108,16 @@ int getorder(char order[10], char par[20], char filename[50])
     return 0;
 }
 
-int exc_dir(FILE_BLOCK *now_file, char *rootdir)
+/*
+执行dir命令
+*/
+int exc_dir(FILE_BLOCK *now_file)
 {
-    if (now_file == NULL)
-        show_alldir((DIR *)rootdir, SIZE_ROOTDIRNUM);
-    else
+    FILE_BLOCK *temp = now_file;
+    while (temp != NULL)
     {
-        FILE_BLOCK *temp = now_file;
-        while (temp != NULL)
-        {
-            show_alldir((DIR *)temp->data, SIZE_DIRNUM);
-            temp = temp->next;
-        }
+        show_alldir((DIR *)temp->data, SIZE_DIRNUM);
+        temp = temp->next;
     }
     return 0;
 }
@@ -133,58 +128,9 @@ int error_cd()
     fflush(stdout);
     return 0;
 }
-FILE_BLOCK *exc_cd(FILE *fp, FILE_BLOCK *now_file, char *rootdir, char name[50], const unsigned char *const fat)
+FILE_BLOCK *exc_cd(FILE *fp, FILE_BLOCK *now_file, FILE_BLOCK *rootdir, char name[50], const unsigned char *const fat, PATH** head)
 {
-    char name1[12];
-    int count_zoro = 0;
-    for (int i = 0; i < 12; i++)
-    {
-        name1[i] = name[i];
-        if (name[i] == 0)
-        {
-            count_zoro += 1;
-            break;
-        }
-    }
-    if (count_zoro != 1)
-    {
-        error_cd();
-        return 0;
-    }
-    if (now_file == NULL) //根目录
-    {
-        DIR *temp = find_dir((DIR *)rootdir, SIZE_ROOTDIRNUM, name1);
-        if (temp == NULL || temp->DIR_Attr != 0x10)
-        {
-            error_cd();
-            return now_file;
-        }
-        now_file = GET_FILE(fp, fat, temp->DIR_FstClus);
-    }
-    else //非根目录
-    {
-        FILE_BLOCK *temp = now_file;
-        DIR *temp1 = NULL;
-        while (temp != NULL)
-        {
-            temp1 = find_dir((DIR *)temp->data, SIZE_DIRNUM, name1);
-            if (temp1 == NULL || temp1->DIR_Attr != 0x10)
-            {
-                temp = temp->next;
-                continue;
-            }
-            break;
-        }
-        if (temp1 == NULL)
-        {
-            error_cd();
-            return now_file;
-        }
-        temp = now_file;
-        now_file = GET_FILE(fp, fat, temp1->DIR_FstClus);
-        free_fileblock(temp);
-    }
-    return now_file;
+    return FIND_PATH(fp,fat,rootdir,now_file,name,1,head,0x10);
 }
 
 #endif
