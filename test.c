@@ -57,7 +57,10 @@ int main()
         
         if(temp == ORDER_TREE)
             exc_tree(fp,now_file,fat,1);
+        if(temp == ORDER_R)
+            exc_read(fp,fat,now_file,filename);
         
+        if(temp == ORDER_R);
         printf("\n");
         fflush(stdout);
     }

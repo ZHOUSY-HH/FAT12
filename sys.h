@@ -25,6 +25,8 @@ int test(char order[10])
         return ORDER_INFO;
     if ((order[0] == 't' || order[0] == 'T') && (order[1] == 'r' || order[1] == 'R') && (order[2] == 'e' || order[2] == 'E') && (order[3] == 'e' || order[3] == 'E') && order[4] == 0)
         return ORDER_TREE;
+    if (order[0] == 'r' && order[1] == 'R')
+        return ORDER_R;
     return ORDER_ERROR;
 }
 
@@ -137,7 +139,8 @@ int error_cd()
 }
 FILE_BLOCK *exc_cd(FILE *fp, FILE_BLOCK *now_file, FILE_BLOCK *rootdir, char name[50], const unsigned char *const fat, PATH **head)
 {
-    return FIND_PATH(fp, fat, rootdir, now_file, name, 1, head, 0x10);
+    int temp;
+    return FIND_PATH(fp, fat, rootdir, now_file, name, 1, head, 0x10, &temp);
 }
 
 /*
@@ -190,6 +193,24 @@ int exc_tree(FILE *fp, FILE_BLOCK *now_file, char *fat, int count)
         now_file = now_file->next;
         k++;
     }
+    return 0;
+}
+
+/*
+执行r指令
+*/
+int exc_read(FILE *fp, char *fat, FILE_BLOCK *now_file, char *filename[50])
+{
+    FILE_BLOCK *rootdir = NULL;
+    PATH *path = NULL;
+    int size;
+    FILE_BLOCK *file = FIND_PATH(fp, fat, rootdir, now_file, filename, 0, path, 0x20, &size);
+    if (file == now_file || file == NULL)
+    {
+        printf("errorfile\n");
+        return 1;
+    }
+    show_txt(filename,size);
     return 0;
 }
 

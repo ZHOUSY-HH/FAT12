@@ -267,7 +267,7 @@ DIR *find_dir(DIR *file, unsigned short maxsize, const char name[12])
 /*
 寻找相对路径
 */
-FILE_BLOCK *FIND_PATH(FILE *fp, const char *const fat, FILE_BLOCK *rootdir, FILE_BLOCK *now_file, const char name[50], char changep, PATH **path, int attr)
+FILE_BLOCK *FIND_PATH(FILE *fp, const char *const fat, FILE_BLOCK *rootdir, FILE_BLOCK *now_file, const char name[50], char changep, PATH **path, int attr, int* size)
 {
     char tempname[12];
     int num = strlen(name);
@@ -364,6 +364,7 @@ FILE_BLOCK *FIND_PATH(FILE *fp, const char *const fat, FILE_BLOCK *rootdir, FILE
             {
                 if (tempnowfile != now_file)
                     free_fileblock(tempnowfile);
+                (*size) = tempdir->DIR_FileSize;
                 tempnowfile = GET_FILE(fp, fat, tempdir->DIR_FstClus);
                 free(now_file);
             }

@@ -28,6 +28,6 @@
 #define ORDERC_CD 3
 #define ORDER_INFO 4
 #define ORDER_TREE 5
-#define ORDER_OPEN 6   
+#define ORDER_R 6   
 
 #endif
