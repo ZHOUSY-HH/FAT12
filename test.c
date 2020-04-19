@@ -39,12 +39,12 @@ int main()
 
         if (temp == ORDER_DIR)
             exc_dir(now_file);
-        
+
         if (temp == ORDER_ERROR)
         {
             if (order[0] == 'q' || order[0] == 'Q')
                 return 0;
-            printf("error");
+            printf("error order");
         }
 
         if (temp == ORDERC_CD)
@@ -57,10 +57,9 @@ int main()
         
         if(temp == ORDER_TREE)
             exc_tree(fp,now_file,fat,1);
+        
         if(temp == ORDER_R)
             exc_read(fp,fat,now_file,filename);
-        
-        if(temp == ORDER_R);
         printf("\n");
         fflush(stdout);
     }

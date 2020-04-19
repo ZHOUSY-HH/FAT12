@@ -160,4 +160,26 @@ int show_base(PATH *path)
     fflush(stdout);
 }
 
+/*
+展示文件内容
+*/
+int show_txt(FILE_BLOCK* file, int maxsize)
+{
+    int count = 1;
+    while(file!=NULL)
+    {
+        for(int i=0; i<SIZE_BLOCK; i++)
+        {
+            if(count > maxsize)
+                break;
+            printf("%c",file->data[i]);
+            count ++;
+        }
+        if(count > maxsize)
+            break;
+        file = file -> next;
+    }
+    return 0;
+}
+
 #endif

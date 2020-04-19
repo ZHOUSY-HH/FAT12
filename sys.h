@@ -25,7 +25,7 @@ int test(char order[10])
         return ORDER_INFO;
     if ((order[0] == 't' || order[0] == 'T') && (order[1] == 'r' || order[1] == 'R') && (order[2] == 'e' || order[2] == 'E') && (order[3] == 'e' || order[3] == 'E') && order[4] == 0)
         return ORDER_TREE;
-    if (order[0] == 'r' && order[1] == 'R')
+    if ((order[0] == 'r' || order[0] == 'R')&&order[1]==0)
         return ORDER_R;
     return ORDER_ERROR;
 }
@@ -122,7 +122,7 @@ int exc_dir(FILE_BLOCK *now_file)
     FILE_BLOCK *temp = now_file;
     while (temp != NULL)
     {
-        show_alldir((DIR *)temp->data, SIZE_DIRNUM);
+        show_alldir((DIR *)(temp->data), SIZE_DIRNUM);
         temp = temp->next;
     }
     return 0;
@@ -199,18 +199,18 @@ int exc_tree(FILE *fp, FILE_BLOCK *now_file, char *fat, int count)
 /*
 执行r指令
 */
-int exc_read(FILE *fp, char *fat, FILE_BLOCK *now_file, char *filename[50])
+int exc_read(FILE *fp, char *fat, FILE_BLOCK *now_file, char filename[50])
 {
     FILE_BLOCK *rootdir = NULL;
     PATH *path = NULL;
     int size;
-    FILE_BLOCK *file = FIND_PATH(fp, fat, rootdir, now_file, filename, 0, path, 0x20, &size);
+    FILE_BLOCK *file = FIND_PATH(fp, fat, rootdir, now_file, filename, 0, &path, 0x20, &size);
     if (file == now_file || file == NULL)
     {
-        printf("errorfile\n");
+        printf("errorfile1\n");
         return 1;
     }
-    show_txt(filename,size);
+    show_txt(file,size);
     return 0;
 }
 

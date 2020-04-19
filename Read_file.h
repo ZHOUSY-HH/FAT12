@@ -62,32 +62,42 @@ int TEST_STRINGE(const char *const cmp1, const char *const cmp2, int num)
 {
     int mark = 0;
     int count = 0;
-    for(int i=0; i<num; i++)
+    if(cmp1[0]=='.'&&cmp1[1]=='.'&&cmp1[2]==0)
+    {
+        if(cmp2[8]==' '&& cmp2[0]=='.'&&cmp2[1]=='.'&&cmp2[2]==' ')
+            return 0;
+        return 1;
+    }
+    for (int i = 0; i < num; i++)
     {
         count = i;
-        if(cmp1[i]==0)
+        if (cmp1[i] == 0)
             break;
-        if(cmp1[i]=='.')
+        if (cmp1[i] == '.')
         {
             mark = 1;
             break;
         }
     }
-    if(mark&&cmp2[8]==' ')
+    if (mark && cmp2[8] == ' ')
         return 1;
-    for(int i=0; i<count; i++)
+    for (int i = 0; i < count; i++)
     {
-        if(cmp1[i]!=cmp2[i])
+        if (cmp1[i] != cmp2[i])
             return 1;
     }
+    if(!mark)
+        return 0;
     int k = 8;
-    for(int i=count; i<num; i++)
+    for (int i = count + 1; i < num; i++)
     {
-        if(cmp1[i]==0&&cmp2[k]==' ')
+        if (cmp1[i] == 0 && cmp2[k] == ' ')
             break;
-        if(cmp1[i]!=cmp2[k])
+        if (cmp1[i] != cmp2[k])
             return 1;
         k++;
+        if (k >= num)
+            break;
     }
     return 0;
 }
@@ -202,7 +212,7 @@ FILE_BLOCK *GET_ROOTDIR(FILE *fp)
     FILE_BLOCK *temp1 = temp;
     temp->data = BLOCK_READ(BEGIN_DIR, fp);
     temp->next = NULL;
-    for (int i = 0; i < BLOCKNUM_DIR - 1; i++)
+    for (int i = 1; i < BLOCKNUM_DIR ; i++)
     {
         temp->next = (FILE_BLOCK *)malloc(sizeof(FILE_BLOCK));
         temp = temp->next;
@@ -267,7 +277,7 @@ DIR *find_dir(DIR *file, unsigned short maxsize, const char name[12])
 /*
 寻找相对路径
 */
-FILE_BLOCK *FIND_PATH(FILE *fp, const char *const fat, FILE_BLOCK *rootdir, FILE_BLOCK *now_file, const char name[50], char changep, PATH **path, int attr, int* size)
+FILE_BLOCK *FIND_PATH(FILE *fp, const char *const fat, FILE_BLOCK *rootdir, FILE_BLOCK *now_file, const char name[50], char changep, PATH **path, int attr, int *size)
 {
     char tempname[12];
     int num = strlen(name);
@@ -344,11 +354,10 @@ FILE_BLOCK *FIND_PATH(FILE *fp, const char *const fat, FILE_BLOCK *rootdir, FILE
                 if (tempnowfile != now_file)
                     free_fileblock(tempnowfile);
                 tempnowfile = GET_FILE(fp, fat, tempdir->DIR_FstClus);
-                free_fileblock(now_file);
                 if (name[i] == 0)
                     return tempnowfile;
             }
-            else if (name[i + 1] != 0 && tempdir->DIR_Attr != 0x10) //找到一个文件但是未到文件尾
+            else if (name[i] != 0 && tempdir->DIR_Attr != 0x10) //找到一个文件但是未到文件尾
             {
                 if (changep)
                 {
@@ -362,11 +371,18 @@ FILE_BLOCK *FIND_PATH(FILE *fp, const char *const fat, FILE_BLOCK *rootdir, FILE
             }
             else //找到真正的文件
             {
+                if(changep)
+                {
+                    while ((*path) != temppath)
+                        (*path) = path_sub((*path));
+                    free_fileblock(tempnowfile);
+                    return now_file;
+                }
                 if (tempnowfile != now_file)
                     free_fileblock(tempnowfile);
                 (*size) = tempdir->DIR_FileSize;
                 tempnowfile = GET_FILE(fp, fat, tempdir->DIR_FstClus);
-                free(now_file);
+                //free(now_file);
             }
         }
     }
