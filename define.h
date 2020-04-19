@@ -6,6 +6,7 @@
 #define SIZE_ROOTDIRNUM 224
 #define SIZE_DIRNUM 16
 
+#define BEGIN_MBR 0
 #define BEGIN_DIR 19
 #define BEGIN_FAT1 1
 #define BEGIN_FAT2 10
@@ -24,6 +25,9 @@
 
 #define ORDER_DIR 1
 #define ORDER_ERROR 2
-#define ORDERC_CD 3   
+#define ORDERC_CD 3
+#define ORDER_INFO 4
+#define ORDER_TREE 5
+#define ORDER_OPEN 6   
 
 #endif

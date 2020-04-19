@@ -35,19 +35,37 @@ int main()
             continue;
         }
         int temp = test(order);
+
+
         if (temp == ORDER_DIR)
             exc_dir(now_file);
+        
         if (temp == ORDER_ERROR)
         {
             if (order[0] == 'q' || order[0] == 'Q')
                 return 0;
             printf("error");
         }
+
         if (temp == ORDERC_CD)
         {
             now_file = exc_cd(fp,now_file,rootdir,filename,fat,&head);
         }
+
+        if(temp == ORDER_INFO)
+            exc_info(fp);
+        
+        if(temp == ORDER_TREE)
+            exc_tree(fp,now_file,fat,1);
+        
         printf("\n");
         fflush(stdout);
     }
+    if(now_file != NULL)
+        free_fileblock(now_file);
+    if(rootdir != NULL)
+        free_fileblock(rootdir);
+    if(head != NULL)
+        path_free(head);
+    return 0;
 }

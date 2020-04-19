@@ -119,6 +119,20 @@ PATH* path_return(PATH* head)
     }
     return head;
 }
+/*
+释放路径空间
+*/
+PATH* path_free(PATH* head)
+{
+    PATH* temp = head;
+    while(head != NULL)
+    {
+        head = head ->next;
+        free(temp);
+        temp = head;
+    }
+    return head;
+}
 
 /*
 文件名结构体

@@ -60,17 +60,33 @@ int TEST_CHARE(const char *cmp1, const char *cmp2, int num)
 */
 int TEST_STRINGE(const char *const cmp1, const char *const cmp2, int num)
 {
-    int k = 0;
-    for (int i = 0; i < num; i++)
+    int mark = 0;
+    int count = 0;
+    for(int i=0; i<num; i++)
     {
-        if (cmp1[i] == 0 || cmp2[k] == 0)
+        count = i;
+        if(cmp1[i]==0)
             break;
-        if (i == 8)
-            i += 1;
-        if (cmp1[i] != cmp2[k])
+        if(cmp1[i]=='.')
         {
-            return 1;
+            mark = 1;
+            break;
         }
+    }
+    if(mark&&cmp2[8]==' ')
+        return 1;
+    for(int i=0; i<count; i++)
+    {
+        if(cmp1[i]!=cmp2[i])
+            return 1;
+    }
+    int k = 8;
+    for(int i=count; i<num; i++)
+    {
+        if(cmp1[i]==0&&cmp2[k]==' ')
+            break;
+        if(cmp1[i]!=cmp2[k])
+            return 1;
         k++;
     }
     return 0;
@@ -113,6 +129,9 @@ int BLOCK_WRITE(unsigned long long int number, unsigned char *block, FILE *fp)
     return count != SIZE_BLOCK;
 }
 
+/*
+给MBR信息赋值
+*/
 int INFO_MBR(MBR *temp, char *block)
 {
     CHAR_CHAR(block, (*temp).BS_OEMName, 8, 3);                      //厂商名
